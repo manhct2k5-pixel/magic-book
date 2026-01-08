@@ -795,19 +795,23 @@
         #chapter-photos.is-collage #chapter-photo-frame { display: none; }
         #chapter-photos.is-collage #chapter-collage { display: block; }
 
-        .collage-photo {
-            position: absolute;
-            width: clamp(36px, 7.4vw, 64px);
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
+.collage-photo {
+    position: absolute;
+    width: clamp(36px, 7.4vw, 64px);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
             border-radius: 10px;
             border: 3px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.9);
-            animation: collagePop 0.6s ease forwards;
-            animation-delay: var(--delay, 0ms);
-        }
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+    animation: collagePop 0.6s ease forwards;
+    animation-delay: var(--delay, 0ms);
+}
+
+.collage-photo.is-visible {
+    opacity: 1;
+}
 
         .fan-photo {
             position: absolute;
@@ -1092,6 +1096,15 @@
 
 @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
+    #chapter-photo {
+        opacity: 1 !important;
+        transform: scale(1) !important;
+    }
+    .fan-photo,
+    .collage-photo {
+        opacity: 1 !important;
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
 }
 
 /* --- EXTRA UI CONTROLS --- */

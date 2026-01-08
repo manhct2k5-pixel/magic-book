@@ -67,7 +67,7 @@
             return src.replace(/\.(jpe?g|png)$/i, ".webp");
         }
 
-        function setImageWithFallback(img, src) {
+        function setImageWithFallback(img, src, onFinalError) {
             if (!img || !src) return;
             const webp = toWebpPath(src);
             if (webp === src) {
@@ -78,7 +78,9 @@
                 if (img.src.endsWith(".webp")) {
                     img.onerror = null;
                     img.src = src;
+                    return;
                 }
+                if (onFinalError) onFinalError();
             };
             img.src = webp;
         }
@@ -157,13 +159,7 @@
                 lyricsRaw: STORY_PART_7,
                 folder: "chuong7",
                 imageCount: 37,
-                imageExt: "jpg",
-                extraImages: [
-                    "Ảnh/z7392932474393_46c43e7deac049ab050f9b5d36315b60.jpg",
-                    "Ảnh/z7392932508551_a36b665d387f7c01d91c7cc634744ce7.jpg",
-                    "Ảnh/z7392932545602_e24e57b24bed86d8df961013098c0aeb.jpg",
-                    "Ảnh/z7392932574056_24ebc7d1de91901faf6ee14c050ca1ee.jpg"
-                ]
+                imageExt: "jpg"
             }
         ];
 
@@ -1032,21 +1028,35 @@
             setCollageMode(true);
             chapterCollage.innerHTML = "";
 
-            const positions = generateHeartPositions(imageSources.length);
+            const shuffled = imageSources.slice().sort(() => Math.random() - 0.5);
+            const displayCount = shuffled.length;
+            const positions = generateHeartPositions(displayCount);
+            const baseSize = window.innerWidth <= 520 ? 36 : 48;
+            const size = Math.max(24, Math.round(baseSize - Math.max(0, displayCount - 18) * 0.5));
 
             positions.forEach((pos, idx) => {
                 const img = document.createElement("img");
-                const src = imageSources[idx] || "";
+                const src = shuffled[idx] || "";
                 setImageWithFallback(img, src);
                 img.alt = `${story.title || "Chapter"} ${idx + 1}`;
                 img.loading = "lazy";
                 img.decoding = "async";
                 img.fetchPriority = "low";
                 img.className = "collage-photo";
+                img.style.width = `${size}px`;
+                img.style.height = `${size}px`;
+                img.style.borderWidth = displayCount > 26 ? "2px" : "3px";
                 img.style.left = `${pos.x * 100}%`;
                 img.style.top = `${pos.y * 100}%`;
                 img.style.setProperty("--delay", "0ms");
-                img.style.transform = `translate(-50%, -50%) rotate(${(Math.random() * 12 - 6).toFixed(1)}deg)`;
+                img.style.transform = `translate(-50%, -50%) rotate(${(Math.random() * 8 - 4).toFixed(1)}deg)`;
+                img.onload = () => {
+                    requestAnimationFrame(() => img.classList.add('is-visible'));
+                };
+                if (img.complete) {
+                    requestAnimationFrame(() => img.classList.add('is-visible'));
+                }
+                setImageWithFallback(img, src, () => img.remove());
                 chapterCollage.appendChild(img);
             });
 
